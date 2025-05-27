@@ -1,0 +1,18 @@
+name: MetaversePlugin
+version: '0-DEV'
+main: net.metaversePlugin.MetaversePlugin
+api-version: '1.21.4'
+load: POSTWORLD
+authors: [ RocraftYT ]
+
+commands:
+  giveItem:
+    description: will give the selected item to the selected player.
+    usage: /giveItem <Item> (Player)
+    permission: temp.op
+  Ability:
+    description: contains all commands related to the abilities.
+    usage: /Ability <args>
+  Trust:
+    description: all commands related to trusting players.
+    usage: /Trust <args>
