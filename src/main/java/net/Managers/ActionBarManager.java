@@ -5,6 +5,7 @@ import net.Abilities.Model.Cooldown;
 import net.Abilities.Model.Item;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -35,7 +36,11 @@ public class ActionBarManager extends BukkitRunnable {
 
         String abilityIcon = ability != null ? ability.getIcon() : nullIcon();
         String secondIcon = second != null ? second.getIcon() : nullIcon();
-        String itemIcon = item != null ? item.getIcon() : nullIcon();
+        String itemIcon = item != null ? item.getIcon() : nullIconItem();
+
+        if (ability != null && ability.isDisabled(player)) abilityIcon = shattered();
+        if (second != null && second.isDisabled(player)) secondIcon = shattered();
+        if (item != null && item.isDisabled(player)) itemIcon = shattered();
 
         Cooldown abilityCooldown = ability != null ? ability.getCooldown(player) : null;
         Cooldown secondCooldown = second != null ? second.getCooldown(player) : null;
@@ -50,20 +55,33 @@ public class ActionBarManager extends BukkitRunnable {
                 .build();
     }
 
-
-    private String nullIcon() {
-        return "\uE404";
-    }
-
     private Component compactBlock(Cooldown cooldown, String icon) {
+        TextColor color = NamedTextColor.WHITE;
         long time = cooldown != null ? cooldown.getTimeLeft() : 0;
         long minutes = time / 60;
         long seconds = time % 60;
 
         String timeStr = time <= 0 ? " Ready" : String.format(" %dm %ds", minutes, seconds);
-        return Component.text(icon + timeStr).color(NamedTextColor.WHITE);
+
+        if (icon.equalsIgnoreCase(shattered())) {
+            timeStr = "Shattered";
+            color = TextColor.color(82, 0, 130);
+        }
+
+        return Component.text(icon + timeStr).color(color);
     }
 
+    private String nullIcon() {
+        return "\uE404";
+    }
+
+    private String nullIconItem() {
+        return "\uE404";
+    }
+
+    private String shattered() {
+        return "🔒";
+    }
 
     public void start(Plugin plugin) {
         this.runTaskTimer(plugin,0,1);

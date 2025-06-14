@@ -16,7 +16,6 @@ public class ShieldSound implements Listener {
         Player player = event.getPlayer();
         player.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK,1,1);
 
-
         if (entity instanceof Player damager)
             damager.playSound(player.getLocation(), Sound.ITEM_SHIELD_BREAK,1,1);
     }

@@ -3,8 +3,8 @@ package net.Abilities.Items.OverWorld;
 import net.Abilities.Model.Item;
 import net.Managers.TrustManager;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.*;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,6 +19,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.*;
 
 @SuppressWarnings("deprecation")
@@ -56,6 +57,7 @@ public class MomentumMace extends Item implements Listener {
         if (event.getEntity() instanceof Player player) {
             if (event.getCause() == EntityDamageEvent.DamageCause.FALL && noFall.contains(player.getUniqueId())) {
                 event.setCancelled(true);
+                noFall.remove(player.getUniqueId());
             }
         }
     }
@@ -105,7 +107,6 @@ public class MomentumMace extends Item implements Listener {
             }
         }.runTaskTimer(plugin, 0L, 2L);
     }
-
 
     @Override
     public @NotNull ItemStack getItemstack() {

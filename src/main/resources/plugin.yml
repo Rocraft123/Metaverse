@@ -6,13 +6,15 @@ load: POSTWORLD
 authors: [ RocraftYT ]
 
 commands:
-  giveItem:
-    description: will give the selected item to the selected player.
-    usage: /giveItem <Item> (Player)
-    permission: temp.op
   Ability:
     description: contains all commands related to the abilities.
     usage: /Ability <args>
   Trust:
     description: all commands related to trusting players.
     usage: /Trust <args>
+  Item:
+    description: all commands related to items.
+    usage: /Item <args>
+  Dimension:
+    description: all commands related to dimensions.
+    usage: /Dimension <args>

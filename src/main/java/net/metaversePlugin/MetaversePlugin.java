@@ -1,24 +1,22 @@
 package net.metaversePlugin;
 
-import net.Abilities.Items.ElysianWilds.NaturesMace;
-import net.Abilities.Items.Frostveil.FrozenMace;
-import net.Abilities.Items.OverWorld.MomentumMace;
-import net.Abilities.Items.ShatteredRealm.ShatteredMace;
 import net.Commands.Ability.*;
-import net.Commands.Operator.giveItem;
+import net.Commands.Command;
+import net.Commands.Dimension.SetDimension;
+import net.Commands.Item.GiveItem;
+import net.Commands.Item.SetCooldownItem;
+import net.Commands.Item.SetDisabledItem;
 import net.Commands.Trusted.TrustedAdd;
-import net.Commands.Trusted.TrustedCommand;
 import net.Commands.Trusted.TrustedList;
 import net.Commands.Trusted.TrustedRemove;
 import net.Dimensions.ElysianWilds.ElysianWilds;
-import net.Dimensions.Farlands.Farlands;
 import net.Dimensions.Frostveil.Frostveil;
 import net.Dimensions.Overworld.Overworld;
 import net.Dimensions.ShatteredRealm.ShatteredRealm;
 import net.Dimensions.Void.Void;
+import net.Items.AbilityBeacon.AbilityBeacon;
 import net.Utils.Listeners.*;
 import net.Managers.*;
-import net.Utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -31,30 +29,34 @@ import java.util.logging.Logger;
 
 public final class MetaversePlugin extends JavaPlugin {
 
-    public static final Logger logger = Bukkit.getLogger();
+    public static Logger logger;
     public static final Component prefix = Component.text("[MetaVerse] ").color(NamedTextColor.LIGHT_PURPLE);
 
     @Override
     public void onEnable() {
+        logger = getLogger();
         logger.info("Enabling MetaversePlugin...");
 
+        generateDimensions();
         registerItems();
         registerCommands();
 
-        generateDimensions();
         if (getDataFolder().mkdirs())
             MetaversePlugin.logger.log(Level.CONFIG,"created plugin dataFolder.");
+
+        new DragonEggListener(this);
 
         ActionBarManager actionBar = new ActionBarManager();
         actionBar.start(this);
 
-        Utils.disableRecipe(Material.MACE,this);
+        RecipeManager.registerBetterRecipes();
+        RecipeManager.disableRecipe(Material.MACE,this);
 
-        getServer().getPluginManager().registerEvents(new TestListener(),this);
         getServer().getPluginManager().registerEvents(new SnowBallListener(),this);
         getServer().getPluginManager().registerEvents(new AbilityListener(), this);
         getServer().getPluginManager().registerEvents(new ShieldSound(), this);
         getServer().getPluginManager().registerEvents(new OnPlayerJoin(this), this);
+        getServer().getPluginManager().registerEvents(new CustomEventListener(), this);
 
         logger.info("enabled MetaversePlugin!");
     }
@@ -70,10 +72,13 @@ public final class MetaversePlugin extends JavaPlugin {
         logger.info("Disabled MetaversePlugin!");
     }
 
-    private void registerCommands() {
-        getCommand("giveItem").setExecutor(new giveItem());
+    private void registerItems() {
+        ItemManager manager = new ItemManager(this);
+        manager.registerItem(new AbilityBeacon(this));
+    }
 
-        AbilityCommand abilityCommand = new AbilityCommand();
+    private void registerCommands() {
+        Command abilityCommand = new Command();
         getCommand("Ability").setExecutor(abilityCommand);
 
         abilityCommand.registerExtensions(new ActivateAbility());
@@ -81,57 +86,50 @@ public final class MetaversePlugin extends JavaPlugin {
         abilityCommand.registerExtensions(new SetCooldown());
         abilityCommand.registerExtensions(new WithdrawAbility());
         abilityCommand.registerExtensions(new SwitchAbility());
+        abilityCommand.registerExtensions(new SetDisabled());
 
-        TrustedCommand trustedCommand = new TrustedCommand();
+        Command trustedCommand = new Command();
         getCommand("Trust").setExecutor(trustedCommand);
 
         trustedCommand.registerExtensions(new TrustedAdd());
         trustedCommand.registerExtensions(new TrustedRemove());
         trustedCommand.registerExtensions(new TrustedList());
-    }
 
-    private void registerItems() {
-        ItemManager itemManager = new ItemManager(this);
+        Command itemCommand = new Command();
+        getCommand("Item").setExecutor(itemCommand);
 
-        itemManager.registerItem(new MomentumMace(this));
-        itemManager.registerItem(new FrozenMace(this));
-        itemManager.registerItem(new ShatteredMace());
-        itemManager.registerItem(new NaturesMace(this));
+        itemCommand.registerExtensions(new GiveItem());
+        itemCommand.registerExtensions(new SetCooldownItem());
+        itemCommand.registerExtensions(new SetDisabledItem());
+
+        Command dimensionCommand = new Command();
+        getCommand("Dimension").setExecutor(dimensionCommand);
+
+        dimensionCommand.registerExtensions(new SetDimension());
     }
 
     private void generateDimensions() {
         Void void_world = new Void();
-        if (Bukkit.getWorld(void_world.getDisplayName()) == null)
-            void_world.generateWorld();
 
         Overworld overworld = new Overworld();
-        if (Bukkit.getWorld("world") == null)
-            overworld.generateWorld();
+        overworld.registerAbilities(this);
+        overworld.registerItems(this);
 
         ElysianWilds elysianWilds = new ElysianWilds();
         elysianWilds.registerAbilities(this);
-        if (Bukkit.getWorld(elysianWilds.getDisplayName()) == null)
-            elysianWilds.generateWorld();
-
-        Farlands farlands = new Farlands();
-        farlands.registerAbilities(this);
-        if (Bukkit.getWorld(farlands.getDisplayName()) == null)
-            farlands.generateWorld();
+        elysianWilds.registerItems(this);
 
         Frostveil frostveil = new Frostveil();
         frostveil.registerAbilities(this);
-        if (Bukkit.getWorld(frostveil.getDisplayName()) == null)
-            frostveil.generateWorld();
+        frostveil.registerItems(this);
 
         ShatteredRealm realm = new ShatteredRealm();
         realm.registerAbilities(this);
-        if (Bukkit.getWorld(realm.getDisplayName()) == null)
-            realm.generateWorld();
+        realm.registerItems(this);
 
         DimensionManager.registerDimension(void_world);
         DimensionManager.registerDimension(overworld);
         DimensionManager.registerDimension(elysianWilds);
-        DimensionManager.registerDimension(farlands);
         DimensionManager.registerDimension(frostveil);
         DimensionManager.registerDimension(realm);
     }

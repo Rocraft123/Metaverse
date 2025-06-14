@@ -1,8 +1,13 @@
 package net.Utils.Listeners;
 
 
+import net.Dimensions.Dimension;
 import net.Managers.DimensionManager;
 import net.Managers.FileManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.metaversePlugin.MetaversePlugin;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -15,6 +20,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Objects;
+import java.util.Random;
 
 
 public class OnPlayerJoin implements Listener {
@@ -31,30 +37,9 @@ public class OnPlayerJoin implements Listener {
         FileManager fileManager = new FileManager(plugin);
 
         if (!fileManager.hasPlayerData(player.getUniqueId()))
-            onFirstJoin(player);
+            setDimension(player);
 
         fileManager.loadPlayerData(player.getUniqueId());
-    }
-
-    public void onFirstJoin(Player player) {
-        World world = Objects.requireNonNull(DimensionManager.getDimension("void")).getWorld();
-        player.teleport(new Location(world, 0, 170, 0));
-        player.playSound(player.getLocation(), Sound.MUSIC_DISC_13,1,1);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                new BukkitRunnable() {
-                    double tick = 0;
-                    @Override
-                    public void run() {
-                        player.teleport(new Location(world, 0, 170 + tick / 100, 0));
-                        tick++;
-                    }
-                }.runTaskTimer(plugin, 0,1);
-
-            }
-        }.runTaskLater(plugin, 20 * 10);
     }
 
     @EventHandler
@@ -63,5 +48,13 @@ public class OnPlayerJoin implements Listener {
 
         FileManager fileManager = new FileManager(plugin);
         fileManager.savePlayerData(player);
+    }
+
+    public void setDimension(Player player) {
+        Dimension dimension = DimensionManager.getDimension(new Random());
+        DimensionManager.setDimension(player, dimension);
+        player.sendMessage(MetaversePlugin.prefix.append(Component.text(
+                "Your ability has been set to: " + dimension.getDisplayName() + "!").color(NamedTextColor.AQUA)));
+        player.playSound(player.getLocation(), Sound.BLOCK_BREWING_STAND_BREW,1,1);
     }
 }

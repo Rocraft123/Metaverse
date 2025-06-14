@@ -1,7 +1,5 @@
-package net.Commands.Ability;
+package net.Commands;
 
-import net.Commands.CommandExtension;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -11,12 +9,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AbilityCommand implements CommandExecutor, TabCompleter {
+public class Command implements CommandExecutor, TabCompleter {
 
     private final List<CommandExtension> extensions = new ArrayList<>();
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String @NotNull [] args) {
         if (args.length == 0) {
             sender.sendMessage("no not 0 args dumbness");
             return true;
@@ -34,7 +32,7 @@ public class AbilityCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull org.bukkit.command.Command command, @NotNull String label, @NotNull String @NotNull[] args) {
         List<CommandExtension> accessibleExtensions = new ArrayList<>();
 
         for (CommandExtension extension : this.extensions) {
@@ -58,11 +56,23 @@ public class AbilityCommand implements CommandExecutor, TabCompleter {
 
         if (args.length >= 2) {
             String subCommand = args[0];
+
+            String currentInput = args[args.length - 1].toLowerCase();
+            List<String> matches = new ArrayList<>();
+
             for (CommandExtension extension : accessibleExtensions) {
                 if (extension.getArg().equalsIgnoreCase(subCommand)) {
-                    return extension.onTabComplete(sender, command, label, args);
+                    List<String> currentList = extension.onTabComplete(sender, command, label, args);
+
+                    if (currentList == null) continue;
+                    for (String string : currentList) {
+                        if (string.toLowerCase().startsWith(currentInput)) {
+                            matches.add(string);
+                        }
+                    }
                 }
             }
+            return matches;
         }
 
         return new ArrayList<>();

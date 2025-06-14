@@ -3,7 +3,6 @@ package net.Abilities.Abilities.ElysianWilds;
 import net.Abilities.Model.Ability;
 import net.Abilities.Model.Cooldown;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -13,22 +12,16 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
-import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("deprecation")
 public class Wildstride extends Ability implements Listener {
 
     private final Plugin plugin;
@@ -37,6 +30,7 @@ public class Wildstride extends Ability implements Listener {
         super("Wildstride", 120, TextColor.color(94, 242, 122), "\uE004");
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
+        this.setKey("wildstride");
     }
 
     private final List<Player> users = new ArrayList<>();
@@ -161,32 +155,5 @@ public class Wildstride extends Ability implements Listener {
 
             grapplingCooldown.put(player.getUniqueId(), new Cooldown(15));
         }
-    }
-
-    @Override
-    public @NotNull ItemStack getItemstack() {
-        ItemStack itemStack = new ItemStack(Material.ECHO_SHARD);
-        ItemMeta meta = itemStack.getItemMeta();
-
-        if (meta == null)
-            return itemStack;
-
-        meta.setDisplayName(ChatColor.of(new Color(204, 153, 255)) + "§l" + getName());
-        meta.setRarity(ItemRarity.EPIC);
-
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.of(new Color(177, 107, 255)) + "A mysterious fragment, pulsing with");
-        lore.add(ChatColor.of(new Color(177, 107, 255)) + "arcane energy that bends to will.");
-        lore.add("");
-        lore.add(ChatColor.of(new Color(255, 128, 191)) + "§l" + "Right-click to awaken its gift.");
-        lore.add(ChatColor.of(new Color(170, 85, 255)) + "Each shard carries a different essence.");
-        lore.add("");
-        lore.add(ChatColor.of(new Color(120, 60, 150)) + "Remnant of something ancient and unseen...");
-
-        meta.setLore(lore);
-        meta.setItemModel(new NamespacedKey("metaverse", "wildstride"));
-
-        itemStack.setItemMeta(meta);
-        return itemStack;
     }
 }

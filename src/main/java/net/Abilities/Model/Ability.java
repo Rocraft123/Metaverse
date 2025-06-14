@@ -5,27 +5,34 @@ import net.Managers.ItemManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
 import net.metaversePlugin.MetaversePlugin;
-import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemRarity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.awt.*;
+import java.util.List;
+import java.util.*;
 
+@SuppressWarnings("deprecation")
 public abstract class Ability {
 
     private final String name;
-    private int cooldownTime;
+    private final int cooldownTime;
     private final String icon;
     private Sound executeSound = Sound.ENTITY_EVOKER_CAST_SPELL;
     private TextColor color;
+    private String key = "";
 
     private final HashMap<UUID, Cooldown> playerCooldown = new HashMap<>();
+    private final HashMap<UUID, Boolean> disabled = new HashMap<>();
 
     public Ability(@NotNull String name, int cooldownTime, @NotNull TextColor color, @NotNull String icon) {
         this.name = name;
@@ -35,7 +42,6 @@ public abstract class Ability {
     }
 
     public abstract boolean onExecute(Player player);
-    public abstract @NotNull ItemStack getItemstack();
 
     public void execute(Player player) {
         PlayerActivateAbilityEvent event = new PlayerActivateAbilityEvent(player, this);
@@ -50,7 +56,9 @@ public abstract class Ability {
                 if (this instanceof Item item)
                     manager.setLastUsedItem(player, item);
                 setCooldown(player, new Cooldown(cooldownTime));
-                player.getWorld().playSound(player.getLocation(), executeSound, 1,1);
+
+                if (executeSound != null)
+                    player.getWorld().playSound(player.getLocation(), executeSound, 1,1);
             }
         } else if (getCooldown(player) != null) {
             player.sendMessage(MetaversePlugin.prefix.
@@ -62,18 +70,11 @@ public abstract class Ability {
     public String getName() {
         return name;
     }
-    public int getCooldownTime() {
-        return cooldownTime;
-    }
-    public void setCooldownTime(int cooldownTime) {
-        this.cooldownTime = cooldownTime;
-    }
+
     public @NotNull String getIcon() {
         return icon;
     }
-    public @NotNull Sound getExecuteSound() {
-        return executeSound;
-    }
+
     public void setExecuteSound(Sound executeSound) {
         this.executeSound = executeSound;
     }
@@ -84,11 +85,49 @@ public abstract class Ability {
         this.color = color;
     }
 
+    public void setKey(String key) {
+        this.key = key;
+    }
+
     public @Nullable Cooldown getCooldown(Player player) {
         return playerCooldown.get(player.getUniqueId());
     }
 
     public void setCooldown(Player player, @NotNull Cooldown cooldown) {
         playerCooldown.put(player.getUniqueId(), cooldown);
+    }
+
+    public boolean isDisabled(Player player) {
+        return disabled.getOrDefault(player.getUniqueId(), false);
+    }
+
+    public void setDisabled(Player player, boolean b) {
+        disabled.put(player.getUniqueId(), b);
+    }
+
+    public @NotNull ItemStack getItemstack() {
+        ItemStack itemStack = new ItemStack(Material.ECHO_SHARD);
+        ItemMeta meta = itemStack.getItemMeta();
+
+        if (meta == null)
+            return itemStack;
+
+        meta.setDisplayName(ChatColor.of(new Color(204, 153, 255)) + "§l" + getName());
+        meta.setRarity(ItemRarity.EPIC);
+
+        List<String> lore = new ArrayList<>();
+        lore.add(ChatColor.of(new Color(177, 107, 255)) + "A mysterious fragment, pulsing with");
+        lore.add(ChatColor.of(new Color(177, 107, 255)) + "arcane energy that bends to will.");
+        lore.add("");
+        lore.add(ChatColor.of(new Color(255, 128, 191)) + "§l" + "Right-click to awaken its gift.");
+        lore.add(ChatColor.of(new Color(170, 85, 255)) + "Each shard carries a different essence.");
+        lore.add("");
+        lore.add(ChatColor.of(new Color(120, 60, 150)) + "Remnant of something ancient and unseen...");
+
+        meta.setLore(lore);
+        meta.setItemModel(new NamespacedKey("metaverse", key));
+
+        itemStack.setItemMeta(meta);
+        return itemStack;
     }
 }

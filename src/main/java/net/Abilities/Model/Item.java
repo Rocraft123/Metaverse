@@ -18,5 +18,4 @@ public abstract class Item extends Ability {
     public int getItemID() {
         return itemID;
     }
-
 }

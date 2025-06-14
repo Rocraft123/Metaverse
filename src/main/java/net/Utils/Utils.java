@@ -1,12 +1,14 @@
 package net.Utils;
 
+import net.Abilities.Model.Item;
+import net.Dimensions.Dimension;
+import net.Managers.DimensionManager;
+import net.Managers.ItemManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +36,6 @@ public class Utils {
         }
         return blocks;
     }
-
 
     public static @NotNull List<Block> getNearbyBlocksByType(Material type, Location center, int radiusX, int radiusY, int radiusZ) {
         World world = center.getWorld();
@@ -66,6 +67,30 @@ public class Utils {
         return blocks;
     }
 
+    public static Location getRandomSaveLocation(Location base, World world, int range) {
+        Random random = new Random();
+
+        for (int attempts = 0; attempts < 20; attempts++) {
+            int dx = random.nextInt(range) - 10;
+            int dz = random.nextInt(range) - 10;
+            int dy = random.nextInt(range) - 5;
+
+            Location loc = base.clone().add(dx, dy, dz);
+
+            int y = loc.getBlockY();
+            for (int i = y + 5; i >= y - 5; i--) {
+                Location check = new Location(world, loc.getX(), i, loc.getZ());
+                Material below = check.getBlock().getType();
+                Material above = check.clone().add(0, 1, 0).getBlock().getType();
+
+                if (below.isSolid() && above.isAir()) {
+                    return check.add(0, 1, 0);
+                }
+            }
+        }
+        return base;
+    }
+
     public static void spawnParticleCircle(Particle particle, Location center, double radius, double count, @Nullable Particle.DustOptions dustOptions) {
         World world = center.getWorld();
         if (world == null) return;
@@ -86,14 +111,21 @@ public class Utils {
         }
     }
 
+    public static @NotNull List<String> getItemNameStrings() {
+        List<String> items = new ArrayList<>();
 
-    public static void disableRecipe(@NotNull Material result, @NotNull Plugin plugin) {
-        Iterator<Recipe> it = plugin.getServer().recipeIterator();
-        while (it.hasNext()) {
-            Recipe recipe = it.next();
-            if (recipe != null && recipe.getResult().getType() == result) {
-                it.remove();
+        ItemManager manager = ItemManager.getInstance();
+
+        for (Dimension dimension : DimensionManager.dimensions) {
+            for (Item item : dimension.getItems()) {
+                items.add(dimension.getDisplayName().toLowerCase().replace(" ", "") + ":" +
+                        item.getName().toLowerCase().replace(" ", ""));
+            }
+            for (Item item : manager.getUtilItems()) {
+                items.add("metaverse" + ":" +
+                        item.getName().toLowerCase().replace(" ", ""));
             }
         }
+        return items;
     }
 }

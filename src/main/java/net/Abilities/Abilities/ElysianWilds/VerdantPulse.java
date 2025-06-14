@@ -7,30 +7,29 @@ import net.Utils.Utils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
 import net.metaversePlugin.MetaversePlugin;
 import org.bukkit.*;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @SuppressWarnings("deprecation")
 public class VerdantPulse extends Ability {
 
     private final Plugin plugin;
-
     public VerdantPulse(Plugin plugin) {
         super("Verdant Pulse", 90, TextColor.color(83, 207, 122), "\uE001");
         this.plugin = plugin;
+        this.setKey("verdant_pulse");
     }
 
     private final HashMap<UUID, Double> burstEnergy = new HashMap<>();
@@ -184,32 +183,5 @@ public class VerdantPulse extends Ability {
 
     private void addEnergy(Player player, double energy) {
         setEnergy(player, getEnergy(player) + energy);
-    }
-
-    @Override
-    public @NotNull ItemStack getItemstack() {
-        ItemStack itemStack = new ItemStack(Material.ECHO_SHARD);
-        ItemMeta meta = itemStack.getItemMeta();
-
-        if (meta == null)
-            return itemStack;
-
-        meta.setDisplayName(ChatColor.of(new java.awt.Color(204, 153, 255)) + "§l" + getName());
-        meta.setRarity(ItemRarity.EPIC);
-
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.of(new java.awt.Color(177, 107, 255)) + "A mysterious fragment, pulsing with");
-        lore.add(ChatColor.of(new java.awt.Color(177, 107, 255)) + "arcane energy that bends to will.");
-        lore.add("");
-        lore.add(ChatColor.of(new java.awt.Color(255, 128, 191)) + "§l" + "Right-click to awaken its gift.");
-        lore.add(ChatColor.of(new java.awt.Color(170, 85, 255)) + "Each shard carries a different essence.");
-        lore.add("");
-        lore.add(ChatColor.of(new java.awt.Color(120, 60, 150)) + "Remnant of something ancient and unseen...");
-
-        meta.setLore(lore);
-        meta.setItemModel(new NamespacedKey("metaverse", "verdant_pulse"));
-
-        itemStack.setItemMeta(meta);
-        return itemStack;
     }
 }

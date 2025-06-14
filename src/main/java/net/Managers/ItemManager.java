@@ -1,6 +1,8 @@
 package net.Managers;
 
 import net.Abilities.Model.Item;
+import net.Dimensions.Dimension;
+import net.metaversePlugin.MetaversePlugin;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -21,9 +23,9 @@ import java.util.UUID;
 
 public class ItemManager implements Listener {
 
-    private final List<Item> items = new ArrayList<>();
     private final HashMap<UUID, Item> lastUsed = new HashMap<>();
     private static ItemManager instance;
+    private final List<Item> items = new ArrayList<>();
 
 
     public Item getLastUsedItem(Player player) {
@@ -40,21 +42,10 @@ public class ItemManager implements Listener {
     }
 
     public @Nullable Item getItem(int itemID) {
-        for (Item currentItem : items) {
+        for (Item currentItem : getAllItems()) {
             if (currentItem.getItemID() == itemID) return currentItem;
         }
         return null;
-    }
-
-    public @Nullable Item getItem(String name) {
-        for (Item currentItem : items) {
-            if (currentItem.getName().replace(" ", "").equalsIgnoreCase(name)) return currentItem;
-        }
-        return null;
-    }
-
-    public List<Item> getItems() {
-        return items;
     }
 
     public void registerItem(Item item) {
@@ -62,8 +53,58 @@ public class ItemManager implements Listener {
     }
 
     public void unRegisterItem(Item item) {
-        items.remove(item);
+        items.add(item);
     }
+
+
+    public @Nullable Item getItem(String string) {
+        try {
+            String[] strings = string.replace(" ", "").split(":",2);
+            Dimension dimension = DimensionManager.getDimension(strings[0]);
+
+            if (dimension == null && strings[0].equalsIgnoreCase("metaverse")) {
+                for (Item item : items)
+                    if (item.getName().replace(" ", "").
+                            equalsIgnoreCase(strings[1].replace(" ", "")))
+                        return item;
+                return null;
+            }
+
+            if (dimension == null) return null;
+
+            for (Item item : dimension.getItems())
+                if (item.getName().replace(" ", "").
+                        equalsIgnoreCase(strings[1].replace(" ", "")))
+                    return item;
+        } catch (ArrayIndexOutOfBoundsException ignored) {
+            MetaversePlugin.logger.warning("Not enough arguments: ItemManager.getItem(String)");
+        }
+        return null;
+    }
+
+    public List<Item> getItems() {
+        List<Item> items = new ArrayList<>();
+
+        for (Dimension dimension : DimensionManager.dimensions)
+            items.addAll(dimension.getItems());
+
+        return items;
+    }
+
+    public List<Item> getAllItems() {
+        List<Item> items = new ArrayList<>();
+
+        for (Dimension dimension : DimensionManager.dimensions)
+            items.addAll(dimension.getItems());
+
+        items.addAll(this.items);
+        return items;
+    }
+
+    public List<Item> getUtilItems() {
+        return items;
+    }
+
 
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {

@@ -18,20 +18,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SetAbility extends CommandExtension {
+public class SetDisabled extends CommandExtension {
 
-    public SetAbility() {
-        super("set", "Will set the selected ability.");
+    public SetDisabled() {
+        super("disable", "will disable/enable the selected ability.");
         setRequiresOp(true);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        if (!sender.isOp()) return true;
+        if (!sender.isOp()) return false;
         if (args.length < 3) return true;
 
         Ability ability = AbilityManager.getAbility(args[1]);
-        String slot = args[2];
+        boolean disabled = Boolean.parseBoolean(args[2]);
+        String strDisabled = disabled ? "Disabled" : "Enabled";
+
         if (ability == null) {
             sender.sendMessage(MetaversePlugin.prefix.append(
                     Component.text("Invalid ability: " + args[1]).color(NamedTextColor.RED)));
@@ -45,45 +47,36 @@ public class SetAbility extends CommandExtension {
                         Component.text("Invalid player: " + args[3]).color(NamedTextColor.RED)));
                 return true;
             }
-            if (slot.equalsIgnoreCase("main"))
-                AbilityManager.setSelectedAbility(player, ability);
-            else if (slot.equalsIgnoreCase("inventory"))
-                AbilityManager.setSecondAbility(player, ability);
-            else {
-                sender.sendMessage(MetaversePlugin.prefix.append(
-                        Component.text("Invalid slot: " + args[2]).color(NamedTextColor.RED)));
-                return true;
-            }
-            sender.sendMessage(MetaversePlugin.prefix.append(
-                    Component.text("Set the main ability of: " + args[3] + " to ").color(NamedTextColor.GREEN).append(
-                            Component.text(ability.getName() + " " + ability.getIcon()).color(ability.getColor()))));
+
+            ability.setDisabled(player, disabled);
+            sender.sendMessage(MetaversePlugin.prefix.
+                    append(Component.text(strDisabled + ": ").color(NamedTextColor.GREEN)).
+                    append(Component.text(ability.getName() + " " + ability.getIcon()).color(ability.getColor())).
+                    append((Component.text(" For: " + player.getName()).color(NamedTextColor.GREEN))));
+            player.sendMessage(MetaversePlugin.prefix.
+                    append(Component.text(ability.getName() + " " + ability.getIcon()).color(ability.getColor())).
+                    append(Component.text(" has been " + strDisabled + " by: " + sender.getName()).color(NamedTextColor.GREEN)));
             return true;
         }
 
         if (sender instanceof Player player) {
-            if (slot.equalsIgnoreCase("main"))
-                AbilityManager.setSelectedAbility(player, ability);
-            else if (slot.equalsIgnoreCase("inventory"))
-                AbilityManager.setSecondAbility(player, ability);
-            else {
-                sender.sendMessage(MetaversePlugin.prefix.append(
-                        Component.text("Invalid slot: " + args[2]).color(NamedTextColor.RED)));
-                return true;
-            }
-            sender.sendMessage(MetaversePlugin.prefix.append(
-                    Component.text("Set your main ability to: ").color(NamedTextColor.GREEN).append(
-                            Component.text(ability.getName() + " " + ability.getIcon()).color(ability.getColor()))));
+            ability.setDisabled(player, disabled);
+
+            sender.sendMessage(MetaversePlugin.prefix.
+                    append(Component.text(strDisabled + ": ").color(NamedTextColor.GREEN)).
+                    append(Component.text(ability.getName() + " " + ability.getIcon()).color(ability.getColor())));
             return true;
         }
 
         sender.sendMessage(MetaversePlugin.prefix.append(
-                Component.text("Unable to set the ability").color(NamedTextColor.RED)));
+                Component.text("Unable to disable/enable a ability").color(NamedTextColor.RED)));
         return true;
     }
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        if (!(sender.isOp())) return new ArrayList<>();
+        if (!sender.isOp()) return new ArrayList<>();
+        if (args.length == 3) return List.of("true", "false");
         if (args.length == 2) {
             List<String> abilities = new ArrayList<>();
 
@@ -95,10 +88,6 @@ public class SetAbility extends CommandExtension {
             }
             return abilities;
         }
-
-        if (args.length == 3)
-            return List.of("main", "inventory");
-
         if (args.length == 4) {
             List<String> players = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers())

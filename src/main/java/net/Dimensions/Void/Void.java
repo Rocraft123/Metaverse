@@ -1,6 +1,7 @@
 package net.Dimensions.Void;
 
 import net.Dimensions.Dimension;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -13,7 +14,7 @@ import java.util.Objects;
 public class Void extends Dimension {
 
     public Void() {
-        super("void");
+        super("void", NamedTextColor.BLACK);
     }
 
     @Override

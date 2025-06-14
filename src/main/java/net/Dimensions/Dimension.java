@@ -2,6 +2,8 @@ package net.Dimensions;
 
 import net.Abilities.Model.Ability;
 import net.Abilities.Model.Item;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -15,14 +17,17 @@ public abstract class Dimension {
 
     private final String displayName;
     private final World world;
+    private final TextColor color;
 
-    private final List<UUID> players = new ArrayList<>();
     private final List<Ability> abilities = new ArrayList<>();
     private final List<Item> items = new ArrayList<>();
 
-    protected Dimension(@NotNull String displayName) {
+    protected Dimension(@NotNull String displayName, TextColor color) {
         this.displayName = displayName;
-        this.world = generateWorld();
+        this.color = color;
+
+        World world = Bukkit.getWorld(displayName);
+        this.world = world != null ? world : generateWorld();
     }
 
     public @NotNull String getDisplayName() {
@@ -32,17 +37,8 @@ public abstract class Dimension {
     public @NotNull World getWorld() {
         return world;
     }
-
-    public List<UUID> getPlayers() {
-        return players;
-    }
-
-    public void addPlayer(Player player) {
-        players.add(player.getUniqueId());
-    }
-
-    public void removePlayer(Player player) {
-        players.remove(player.getUniqueId());
+    public TextColor getColor() {
+        return color;
     }
 
     public List<Ability> getAbilities() {
@@ -72,5 +68,4 @@ public abstract class Dimension {
     public abstract @NotNull World generateWorld();
     public abstract void registerAbilities(Plugin plugin);
     public abstract void registerItems(Plugin plugin);
-
 }

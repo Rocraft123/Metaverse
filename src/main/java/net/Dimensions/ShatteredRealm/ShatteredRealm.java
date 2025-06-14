@@ -1,6 +1,11 @@
 package net.Dimensions.ShatteredRealm;
 
+import net.Abilities.Abilities.ShatteredRealm.VoidEcho;
+import net.Abilities.Items.ShatteredRealm.ShatteredMace;
+import net.Abilities.Items.ShatteredRealm.ShatteredSword;
 import net.Dimensions.Dimension;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -13,7 +18,7 @@ import java.util.Objects;
 public class ShatteredRealm extends Dimension {
 
     public ShatteredRealm() {
-        super("Shattered Realm");
+        super("Shattered Realm", TextColor.color(145, 62, 184));
     }
 
     @Override
@@ -31,11 +36,12 @@ public class ShatteredRealm extends Dimension {
 
     @Override
     public void registerAbilities(Plugin plugin) {
-
+        addAbility(new VoidEcho(plugin));
     }
 
     @Override
     public void registerItems(Plugin plugin) {
-
+        addItem(new ShatteredMace(plugin));
+        addItem(new ShatteredSword(plugin));
     }
 }

@@ -3,25 +3,18 @@ package net.Abilities.Abilities.ElysianWilds;
 import net.Abilities.Model.Ability;
 import net.Managers.TrustManager;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Color;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-@SuppressWarnings("deprecation")
 public class LeafDrift extends Ability {
 
     private final Plugin plugin;
@@ -29,6 +22,7 @@ public class LeafDrift extends Ability {
     public LeafDrift(Plugin plugin) {
         super("Leaf Drift", 120, TextColor.color(245, 113, 232), "\uE002");
         this.plugin = plugin;
+        this.setKey("leaf_drift");
     }
 
     @Override
@@ -123,32 +117,4 @@ public class LeafDrift extends Ability {
         entity.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE,20 * 10,1));
         entity.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS,20 * 10,1));
     }
-
-    @Override
-    public @NotNull ItemStack getItemstack() {
-        ItemStack itemStack = new ItemStack(Material.ECHO_SHARD);
-        ItemMeta meta = itemStack.getItemMeta();
-
-        if (meta == null)
-            return itemStack;
-
-        meta.setDisplayName(ChatColor.of(new Color(204, 153, 255)) + "§l" + getName());
-        meta.setRarity(ItemRarity.EPIC);
-
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.of(new Color(177, 107, 255)) + "A mysterious fragment, pulsing with");
-        lore.add(ChatColor.of(new Color(177, 107, 255)) + "arcane energy that bends to will.");
-        lore.add("");
-        lore.add(ChatColor.of(new Color(255, 128, 191)) + "§l" + "Right-click to awaken its gift.");
-        lore.add(ChatColor.of(new Color(170, 85, 255)) + "Each shard carries a different essence.");
-        lore.add("");
-        lore.add(ChatColor.of(new Color(120, 60, 150)) + "Remnant of something ancient and unseen...");
-
-        meta.setLore(lore);
-        meta.setItemModel(new NamespacedKey("metaverse", "leaf_drift"));
-
-        itemStack.setItemMeta(meta);
-        return itemStack;
-    }
-
 }

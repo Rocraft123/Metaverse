@@ -1,7 +1,9 @@
 package net.Dimensions.ElysianWilds;
 
 import net.Abilities.Abilities.ElysianWilds.*;
+import net.Abilities.Items.ElysianWilds.NaturesMace;
 import net.Dimensions.Dimension;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -14,7 +16,7 @@ import java.util.Objects;
 public class ElysianWilds extends Dimension {
 
     public ElysianWilds() {
-        super("Elysian Wilds");
+        super("Elysian Wilds", TextColor.color(45, 179, 80));
     }
 
     @Override
@@ -41,6 +43,6 @@ public class ElysianWilds extends Dimension {
 
     @Override
     public void registerItems(Plugin plugin) {
-
+        addItem(new NaturesMace(plugin));
     }
 }

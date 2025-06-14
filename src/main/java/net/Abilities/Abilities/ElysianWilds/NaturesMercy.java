@@ -4,7 +4,6 @@ import net.Abilities.Model.Ability;
 import net.Managers.TrustManager;
 import net.Utils.Utils;
 import net.kyori.adventure.text.format.TextColor;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -14,16 +13,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.inventory.ItemRarity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
-@SuppressWarnings("deprecation")
 public class NaturesMercy extends Ability implements Listener {
 
     private final Plugin plugin;
@@ -31,6 +28,7 @@ public class NaturesMercy extends Ability implements Listener {
     public NaturesMercy(Plugin plugin) {
         super("Nature's Mercy", 120, TextColor.color(255, 231, 97), "\uE003");
         this.plugin = plugin;
+        this.setKey("natures_mercy");
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -166,32 +164,5 @@ public class NaturesMercy extends Ability implements Listener {
                 Material.CHORUS_FLOWER, Material.WEEPING_VINES, Material.TWISTING_VINES, Material.VINE, Material.LILY_PAD
         );
         return Utils.getNearbyBlocksByTypes(plantTypes, player.getLocation(), 20,6,20);
-    }
-
-    @Override
-    public @NotNull ItemStack getItemstack() {
-        ItemStack itemStack = new ItemStack(Material.ECHO_SHARD);
-        ItemMeta meta = itemStack.getItemMeta();
-
-        if (meta == null)
-            return itemStack;
-
-        meta.setDisplayName(ChatColor.of(new java.awt.Color(204, 153, 255)) + "§l" + getName());
-        meta.setRarity(ItemRarity.EPIC);
-
-        List<String> lore = new ArrayList<>();
-        lore.add(ChatColor.of(new java.awt.Color(177, 107, 255)) + "A mysterious fragment, pulsing with");
-        lore.add(ChatColor.of(new java.awt.Color(177, 107, 255)) + "arcane energy that bends to will.");
-        lore.add("");
-        lore.add(ChatColor.of(new java.awt.Color(255, 128, 191)) + "§l" + "Right-click to awaken its gift.");
-        lore.add(ChatColor.of(new java.awt.Color(170, 85, 255)) + "Each shard carries a different essence.");
-        lore.add("");
-        lore.add(ChatColor.of(new java.awt.Color(120, 60, 150)) + "Remnant of something ancient and unseen...");
-
-        meta.setLore(lore);
-        meta.setItemModel(new NamespacedKey("metaverse", "natures_mercy"));
-
-        itemStack.setItemMeta(meta);
-        return itemStack;
     }
 }
